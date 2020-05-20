@@ -10,6 +10,7 @@ Simply, this fails if the given workflow is already running for a particular bra
 ## Usage
 
 ```yaml
+on: push
 # ...
 jobs:
   deploy:
