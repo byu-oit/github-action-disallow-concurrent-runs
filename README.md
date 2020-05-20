@@ -5,7 +5,7 @@ Unfortunately, GitHub Actions does not currently have a way to queue workflows.
 
 If you have a workflow to, say, deploy an application and it goes :boom: if multiple deployments are changing things at the same time, then this might be for you.
 
-Simply, this fails if the given workflow is already running.
+Simply, this fails if the given workflow is already running for a particular branch.
 
 ## Usage
 
