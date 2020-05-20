@@ -1,0 +1,33 @@
+{
+  "name": "disallow-concurrent-runs",
+  "version": "1.0.0",
+  "description": "Disallow Concurrent Runs",
+  "main": "index.js",
+  "scripts": {
+    "lint": "npx standard index.js",
+    "package": "npx ncc build index.js -m -o dist"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/byu-oit/disallow-concurrent-runs.git"
+  },
+  "keywords": [
+    "GitHub",
+    "Actions",
+    "JavaScript"
+  ],
+  "author": "Gary Crye <gary_crye@byu.edu>",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/byu-oit/disallow-concurrent-runs/issues"
+  },
+  "homepage": "https://github.com/byu-oit/disallow-concurrent-runs#readme",
+  "dependencies": {
+    "@actions/core": "^1.2.4",
+    "@actions/github": "^2.2.0"
+  },
+  "devDependencies": {
+    "@zeit/ncc": "^0.22.1",
+    "standard": "^14.3.4"
+  }
+}

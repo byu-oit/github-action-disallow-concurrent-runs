@@ -1,0 +1,17 @@
+name: "Test"
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+      - name: Disallow Concurrent Runs
+        uses: ./
+        with:
+          token: ${{ github.token }}
+      # Do some long-running task
