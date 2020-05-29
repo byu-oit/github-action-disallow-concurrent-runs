@@ -1,4 +1,4 @@
-# ![BYU logo](https://www.hscripts.com/freeimages/logos/university-logos/byu/byu-logo-clipart-128.gif) disallow-concurrent-runs
+# ![BYU logo](https://www.hscripts.com/freeimages/logos/university-logos/byu/byu-logo-clipart-128.gif) github-action-disallow-concurrent-runs
 A GitHub Action for disallowing concurrent workflow runs
 
 Unfortunately, GitHub Actions does not currently have a way to queue workflows.
@@ -17,7 +17,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Disallow Concurrent Runs
-        uses: byu-oit/disallow-concurrent-runs@v1
+        uses: byu-oit/github-action-disallow-concurrent-runs@v1
         with:
           token: ${{ github.token }}
       # ... The rest of your deployment
