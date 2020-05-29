@@ -1,5 +1,5 @@
 {
-  "name": "disallow-concurrent-runs",
+  "name": "github-action-disallow-concurrent-runs",
   "version": "1.0.0",
   "description": "Disallow Concurrent Runs",
   "main": "index.js",
@@ -9,7 +9,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/byu-oit/disallow-concurrent-runs.git"
+    "url": "git+https://github.com/byu-oit/github-action-disallow-concurrent-runs.git"
   },
   "keywords": [
     "GitHub",
@@ -19,9 +19,9 @@
   "author": "Gary Crye <gary_crye@byu.edu>",
   "license": "Apache-2.0",
   "bugs": {
-    "url": "https://github.com/byu-oit/disallow-concurrent-runs/issues"
+    "url": "https://github.com/byu-oit/github-action-disallow-concurrent-runs/issues"
   },
-  "homepage": "https://github.com/byu-oit/disallow-concurrent-runs#readme",
+  "homepage": "https://github.com/byu-oit/github-action-disallow-concurrent-runs#readme",
   "dependencies": {
     "@actions/core": "^1.2.4",
     "@actions/github": "^2.2.0"
