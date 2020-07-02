@@ -6,7 +6,7 @@ async function run () {
     const token = getInput('token', { required: true })
     const octokit = new github.GitHub(token)
 
-    const { repo: { owner, repo }, workflow: workflowName, payload: { ref }, sha } = github.context
+    const { repo: { owner, repo }, workflow: workflowName, payload: { ref } } = github.context
     const branch = ref.slice('refs/heads/'.length) // ref = 'refs/heads/master'
 
     const { data: { workflows } } = await octokit.actions.listRepoWorkflows({
