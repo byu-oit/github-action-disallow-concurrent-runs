@@ -1,3 +1,6 @@
+![CI](https://github.com/byu-oit/github-action-disallow-concurrent-runs/workflows/CI/badge.svg)
+![Test](https://github.com/byu-oit/github-action-disallow-concurrent-runs/workflows/Test/badge.svg)
+
 # ![BYU logo](https://www.hscripts.com/freeimages/logos/university-logos/byu/byu-logo-clipart-128.gif) github-action-disallow-concurrent-runs
 A GitHub Action for disallowing concurrent workflow runs
 
