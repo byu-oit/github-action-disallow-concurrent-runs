@@ -1,0 +1,78 @@
+name: Build
+on:
+  pull_request:
+  push:
+    branches:
+      - master
+      - 'v*'
+env:
+  node_version: "12.x"
+
+jobs:
+  build: # make sure build/ci work properly
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+      - name: Set up Node.js
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ env.node_version }}
+
+      - name: npm install
+        run: npm install
+
+      - name: npm build
+        run: npm build
+
+      - name: npm run pack
+        run: npm run package
+
+  audit:
+    name: Audit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ env.node_version }}
+
+      - name: npm audit
+        run: npm audit --audit-level=critical
+
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ env.node_version }}
+
+      - name: npm install
+        run: npm install
+
+      - name: npm lint
+        run: npm run lint
+
+# When tests are added to the code uncomment
+#  test-code:
+#    name: Test
+#    runs-on: ubuntu-latest
+#    steps:
+#      - uses: actions/checkout@v2
+#
+#      - name: Set up Node.js
+#        uses: actions/setup-node@v1
+#        with:
+#          node-version: ${{ env.node_version }}
+#
+#      - name: npm install
+#        run: npm install
+#
+#      - name: npm test
+#        run: npm test
