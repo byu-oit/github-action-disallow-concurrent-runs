@@ -3,15 +3,18 @@ on:
   push:
     branches:
       - master
+  pull_request:
 
 jobs:
   test:
     name: Test
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v1
+      - name: Checkout
+        uses: actions/checkout@v2
       - name: Disallow Concurrent Runs
         uses: ./
         with:
           token: ${{ github.token }}
-      # Do some long-running task
+      - name: Do Busy Work
+        run: sleep 30s

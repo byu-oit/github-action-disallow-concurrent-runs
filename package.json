@@ -23,11 +23,11 @@
   },
   "homepage": "https://github.com/byu-oit/github-action-disallow-concurrent-runs#readme",
   "dependencies": {
-    "@actions/core": "^1.2.4",
-    "@actions/github": "^2.2.0"
+    "@actions/core": "^1.2.6",
+    "@actions/github": "^4.0.0"
   },
   "devDependencies": {
-    "@zeit/ncc": "^0.22.1",
-    "standard": "^14.3.4"
+    "@zeit/ncc": "^0.22.3",
+    "standard": "^16.0.3"
   }
 }
