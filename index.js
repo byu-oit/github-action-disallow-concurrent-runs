@@ -4,7 +4,7 @@ const github = require('@actions/github')
 async function run () {
   try {
     const token = getInput('token', { required: true })
-    const octokit = new github.getOctokit(token) // eslint-disable-line new-cap
+    const octokit = github.getOctokit(token)
 
     const { eventName, repo: { owner, repo }, workflow: workflowName, ref, sha } = github.context
 
