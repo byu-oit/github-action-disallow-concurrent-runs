@@ -8,7 +8,7 @@ Unfortunately, GitHub Actions does not currently have a way to queue workflows.
 
 If you have a workflow to, say, deploy an application and it goes :boom: if multiple deployments are changing things at the same time, then this might be for you.
 
-Simply, this fails if the given workflow is already running for a particular branch.
+Simply, this cancels the new run if the given workflow is already running for a particular branch.
 
 ## Usage
 
@@ -20,11 +20,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Disallow Concurrent Runs
-        uses: byu-oit/github-action-disallow-concurrent-runs@v1
+        uses: byu-oit/github-action-disallow-concurrent-runs@v2
         with:
           token: ${{ github.token }}
       # ... The rest of your deployment
 ```
+
+This should work on `push` or `pull_request`.
 
 ## Contributing
 Hopefully this is useful to others at BYU. Feel free to ask me some questions about it, but I make no promises about being able to commit time to support it.

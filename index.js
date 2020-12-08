@@ -4,16 +4,27 @@ const github = require('@actions/github')
 async function run () {
   try {
     const token = getInput('token', { required: true })
-    const octokit = new github.GitHub(token)
+    const octokit = github.getOctokit(token)
 
-    const { repo: { owner, repo }, workflow: workflowName, payload: { ref } } = github.context
-    const branch = ref.slice('refs/heads/'.length) // ref = 'refs/heads/master'
+    const { eventName, repo: { owner, repo }, workflow: workflowName, ref, sha } = github.context
+
+    if (eventName !== 'push' && eventName !== 'pull_request') {
+      setFailed('Events other than `push` and `pull_request` are not supported.')
+      return
+    }
+
+    const branch = (eventName === 'push')
+      ? ref.slice('refs/heads/'.length) // ref = 'refs/heads/master'
+      : github.context.payload.pull_request.head.ref // 'master'
 
     const { data: { workflows } } = await octokit.actions.listRepoWorkflows({
       owner,
       repo
     })
-    const { id: workflowId, path: pathToWorkflow } = workflows.find(workflow => workflow.name === workflowName && workflow.state === 'active')
+    const { id: workflowId, path: pathToWorkflow } = workflows.find(workflow => (
+      workflow.name === workflowName &&
+      workflow.state === 'active'
+    ))
 
     startGroup('Workflow Info')
     console.log({ owner, repo, branch, workflowName, workflowId, pathToWorkflow })
@@ -50,22 +61,81 @@ async function run () {
     console.log(incompleteRuns)
     endGroup()
 
-    if (incompleteRuns.length > 1) {
-      // const thisRun = incompleteRuns.find(run => run.commit.sha === sha)
-      // console.log(thisRun)
-      // await octokit.actions.cancelWorkflowRun({
-      //   owner,
-      //   repo,
-      //   run_id: thisRun.id
-      // })
-      setFailed('❌ Another run was already in process for this workflow and branch 💥')
-      process.exit(1)
+    if (incompleteRuns.length === 1) {
+      console.log('✔ This was the only run for this workflow on this branch 🎉')
+      return
     }
 
-    console.log('✔ This was the only run for this workflow on this branch 🎉')
+    console.log('Adding an annotation to explain why this action is about to cancel this workflow run')
+    const checkRunId = await getCheckRunId(octokit, owner, repo, branch, workflowName)
+    await octokit.checks.update({
+      owner,
+      repo,
+      check_run_id: checkRunId,
+      output: {
+        title: 'Disallow Concurrent Runs',
+        summary: 'A GitHub Action for disallowing concurrent workflow runs',
+        annotations: [
+          {
+            path: 'this repository',
+            start_line: 0,
+            end_line: 0,
+            annotation_level: 'failure',
+            title: 'Disallow Concurrent Runs',
+            message: '❌ Another run was already in process for this workflow and branch 💥'
+          }
+        ]
+      }
+    })
+
+    const shaToCancel = (eventName === 'push') ? sha : github.context.payload.pull_request.head.sha
+    const { id: runId } = incompleteRuns.find(run => run.commit.sha === shaToCancel)
+    console.log(`Cancelling workflow run with ID ${runId}`)
+    await octokit.actions.cancelWorkflowRun({
+      owner,
+      repo,
+      run_id: runId
+    })
+    console.log('Successfully cancelled!')
+
+    // Even though GitHub immediately responds that the workflow was cancelled, I've seen it take ~15s before
+    // it actually gets cancelled. This should help us not move on to the next steps in the job.
+    await sleep(20000)
   } catch (e) {
     setFailed(`An error occurred: ${e.message || e}`)
   }
 }
 
 run()
+
+async function getCheckRunId (octokit, owner, repo, branch, name) {
+  const parameters = {
+    owner,
+    repo,
+    ref: branch,
+    status: 'in_progress',
+    name
+  }
+  let checkRuns
+  for (let attempt = 1; attempt <= 5; attempt++) {
+    if (attempt > 1) await sleep(1000)
+    checkRuns = await getCheckRuns(octokit, parameters)
+    if (checkRuns.length > 0) break
+  }
+  if (checkRuns.length === 0) {
+    throw Error('Error while getting the GitHub check run ID, which is needed to give a helpful message explaining why this action was about to cancel your workflow.')
+  }
+
+  // There's probably only one check run that matches those filters, but we can also inspect the response
+  const { id: checkRunId } = checkRuns.find(run => run.app.name === 'GitHub Actions')
+  return checkRunId
+}
+
+async function getCheckRuns (octokit, parameters) {
+  const { data: { check_runs: checkRuns } } = await octokit.checks.listForRef(parameters)
+  return checkRuns
+}
+
+function sleep (ms) {
+  return new Promise(resolve => setTimeout(resolve, ms))
+}
