@@ -4,7 +4,7 @@ const github = require('@actions/github')
 async function run () {
   try {
     const token = getInput('token', { required: true })
-    const octokit = new github.getOctokit(token)
+    const octokit = new github.getOctokit(token) // eslint-disable-line new-cap
 
     const { eventName, repo: { owner, repo }, workflow: workflowName, ref, sha } = github.context
 
@@ -137,5 +137,5 @@ async function getCheckRuns (octokit, parameters) {
 }
 
 function sleep (ms) {
-  return new Promise(resolve => setTimeout(resolve, ms));
+  return new Promise(resolve => setTimeout(resolve, ms))
 }
