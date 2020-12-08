@@ -17,7 +17,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Disallow Concurrent Runs
-        uses: byu-oit/github-action-disallow-concurrent-runs@v1
+        uses: byu-oit/github-action-disallow-concurrent-runs@v2
         with:
           token: ${{ github.token }}
       # ... The rest of your deployment
