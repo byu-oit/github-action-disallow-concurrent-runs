@@ -4,14 +4,16 @@ const github = require('@actions/github')
 async function run () {
   try {
     const token = getInput('token', { required: true })
+    const pollSeconds = getInput('poll_seconds')
     const octokit = github.getOctokit(token)
-
+    const sleeper = () => new Promise((resolve) => setTimeout(resolve, pollSeconds * 1000))
     const { eventName, repo: { owner, repo }, workflow: workflowName, ref, sha } = github.context
 
     if (eventName !== 'push' && eventName !== 'pull_request') {
       setFailed('Events other than `push` and `pull_request` are not supported.')
       return
     }
+    const thisRunNumber = github.context.runNumber
 
     const branch = (eventName === 'push')
       ? ref.slice('refs/heads/'.length) // ref = 'refs/heads/master'
@@ -29,43 +31,48 @@ async function run () {
     startGroup('Workflow Info')
     console.log({ owner, repo, branch, workflowName, workflowId, pathToWorkflow })
     endGroup()
+    let incompleteRuns
 
-    const { data: { workflow_runs: workflowRuns } } = await octokit.actions.listWorkflowRuns({
-      owner,
-      repo,
-      workflow_id: workflowId,
-      branch
-    })
-    const runs = workflowRuns.map(run => ({
-      runNumber: run.run_number,
-      commit: {
-        message: run.head_commit.message,
-        author: run.head_commit.author.name,
-        timestamp: run.head_commit.timestamp,
-        sha: run.head_sha
-      },
-      status: run.status,
-      conclusion: run.conclusion,
-      created: run.created_at,
-      updated: run.updated_at,
-      id: run.id
-    }))
+    do {
+      const { data: { workflow_runs: workflowRuns } } = await octokit.actions.listWorkflowRuns({
+        owner,
+        repo,
+        workflow_id: workflowId,
+        branch
+      })
+      const runs = workflowRuns.map(run => ({
+        runNumber: run.run_number,
+        commit: {
+          message: run.head_commit.message,
+          author: run.head_commit.author.name,
+          timestamp: run.head_commit.timestamp,
+          sha: run.head_sha
+        },
+        status: run.status,
+        conclusion: run.conclusion,
+        created: run.created_at,
+        updated: run.updated_at,
+        id: run.id
+      }))
 
-    startGroup(`All Runs (${runs.length})`)
-    console.log(runs)
-    endGroup()
+      startGroup(`All Runs (${runs.length})`)
+      console.log(runs)
+      endGroup()
 
-    const incompleteRuns = runs.filter(run => run.status !== 'completed')
+      incompleteRuns = runs.filter(run => run.status !== 'completed' && run.runNumber < thisRunNumber)
 
-    startGroup(`Incomplete Runs (${incompleteRuns.length})`)
-    console.log(incompleteRuns)
-    endGroup()
+      startGroup(`Incomplete and older runs (${incompleteRuns.length})`)
+      console.log(incompleteRuns)
+      endGroup()
 
-    if (incompleteRuns.length === 1) {
-      console.log('✔ This was the only run for this workflow on this branch 🎉')
-      return
-    }
-
+      if (incompleteRuns.length === 0) {
+        console.log('✔ This was the only or oldest run for this workflow on this branch 🎉')
+        return
+      }
+      if (pollSeconds) {
+        await sleeper()
+      }
+    } while (pollSeconds > 0) // eslint-disable-line 
     console.log('Adding an annotation to explain why this action is about to cancel this workflow run')
     const checkRunId = await getCheckRunId(octokit, owner, repo, branch, workflowName)
     await octokit.checks.update({
