@@ -4,9 +4,9 @@ const github = require('@actions/github')
 async function run () {
   try {
     const token = getInput('token', { required: true })
-    const poll_seconds = getInput('poll_seconds')
+    const pollSeconds = getInput('poll_seconds')
     const octokit = github.getOctokit(token)
-    const sleeper = () => new Promise((resolve) => setTimeout(resolve, poll_seconds*1000))
+    const sleeper = () => new Promise((resolve) => setTimeout(resolve, pollSeconds * 1000))
     const { eventName, repo: { owner, repo }, workflow: workflowName, ref, sha } = github.context
 
     if (eventName !== 'push' && eventName !== 'pull_request') {
@@ -31,8 +31,9 @@ async function run () {
     startGroup('Workflow Info')
     console.log({ owner, repo, branch, workflowName, workflowId, pathToWorkflow })
     endGroup()
+    var incompleteRuns;
 
-    do {
+    while (true) {
       const { data: { workflow_runs: workflowRuns } } = await octokit.actions.listWorkflowRuns({
         owner,
         repo,
@@ -58,21 +59,20 @@ async function run () {
       console.log(runs)
       endGroup()
 
-      const incompleteRuns = runs.filter(run => run.status !== 'completed' && run.runNumber < thisRunNumber)
+      incompleteRuns = runs.filter(run => run.status !== 'completed' && run.runNumber < thisRunNumber)
 
       startGroup(`Incomplete and older runs (${incompleteRuns.length})`)
       console.log(incompleteRuns)
       endGroup()
 
-
       if (incompleteRuns.length === 0) {
         console.log('✔ This was the only or oldest run for this workflow on this branch 🎉')
         return
       }
-      if(poll_seconds) {
-        await sleeper()
+      if (pollSeconds) {
+          await sleeper()
       }
-    } while (poll_seconds > 0);
+    } while (pollSeconds > 0)
     console.log('Adding an annotation to explain why this action is about to cancel this workflow run')
     const checkRunId = await getCheckRunId(octokit, owner, repo, branch, workflowName)
     await octokit.checks.update({
