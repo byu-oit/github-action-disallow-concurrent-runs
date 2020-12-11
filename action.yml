@@ -4,6 +4,9 @@ inputs:
   token:
     description: 'The GitHub token that''s intended for actions'
     required: true
+  poll_seconds:
+    description: 'If set, repeatedly poll for jobs to finish with this interval'
+    required: false
 runs:
   using: 'node12'
   main: 'dist/index.js'
