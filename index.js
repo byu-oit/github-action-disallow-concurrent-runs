@@ -31,9 +31,9 @@ async function run () {
     startGroup('Workflow Info')
     console.log({ owner, repo, branch, workflowName, workflowId, pathToWorkflow })
     endGroup()
-    var incompleteRuns;
+    let incompleteRuns
 
-    while (true) {
+    do {
       const { data: { workflow_runs: workflowRuns } } = await octokit.actions.listWorkflowRuns({
         owner,
         repo,
@@ -70,9 +70,9 @@ async function run () {
         return
       }
       if (pollSeconds) {
-          await sleeper()
+        await sleeper()
       }
-    } while (pollSeconds > 0)
+    } while (pollSeconds > 0) // eslint-disable-line 
     console.log('Adding an annotation to explain why this action is about to cancel this workflow run')
     const checkRunId = await getCheckRunId(octokit, owner, repo, branch, workflowName)
     await octokit.checks.update({
