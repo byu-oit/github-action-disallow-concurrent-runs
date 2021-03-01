@@ -61,7 +61,7 @@ async function run () {
     console.log(incompleteRuns)
     endGroup()
 
-    if (incompleteRuns.length === 1) {
+    if (incompleteRuns.length <= 1) {
       console.log('✔ This was the only run for this workflow on this branch 🎉')
       return
     }
