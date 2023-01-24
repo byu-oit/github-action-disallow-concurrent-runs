@@ -1,6 +1,6 @@
 {
   "name": "github-action-disallow-concurrent-runs",
-  "version": "2.0.0",
+  "version": "2.0.2",
   "description": "Disallow Concurrent Runs",
   "main": "index.js",
   "scripts": {
@@ -23,7 +23,7 @@
   },
   "homepage": "https://github.com/byu-oit/github-action-disallow-concurrent-runs#readme",
   "dependencies": {
-    "@actions/core": "^1.2.6",
+    "@actions/core": "^1.9.1",
     "@actions/github": "^4.0.0"
   },
   "devDependencies": {
